@@ -54,21 +54,20 @@ Salesforce · ERP (data migration & SQL views) · Python (data cleaning, SQL bun
 
 ## Screenshots
 
-**Executive Dashboard**
-![Dashboard](Dashboard.jpg)
-
-**Engine Repair Page**
-![Engine Repair](Engine%20Repair.jpg)
-
-**Engine Purchase Page**
-![Engine Purchase](Engine%20Purchase.jpg)
+**Main Page**
+![Main Page](Main%20Page.jpg)
 
 **Engine Sales Page**
 ![Engine Sales](Engine%20Sales.jpg)
 
-**Main Page**
-![Main Page](Main%20Page.jpg)
+**Engine Purchase Page**
+![Engine Purchase](Engine%20Purchase.jpg)
 
+**Engine Repair Page**
+![Engine Repair](Engine%20Repair.jpg)
+
+**Executive Dashboard**
+![Dashboard](Dashboard.jpg)
 ---
 
 *This repo contains a data migration project built with mock data, based on a real project where I migrated sales data from Salesforce to an ERP system. Company names, figures, and records shown here are fictional and do not represent any real company's data.*
