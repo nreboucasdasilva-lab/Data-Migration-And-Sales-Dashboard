@@ -46,7 +46,7 @@ Built supporting Crystal Reports for sales leadership covering active opportunit
 ## Results & Business Impact
 
 - **Centralized, accurate forecasting** — with all opportunity data now living in one system, the company could track the full lifecycle of a deal — from Negotiation through Closed Won — and tie it to actual revenue recognition once a repair was invoiced in the ERP. This closed a visibility gap that previously existed between CRM's pipeline data and the ERP's financial/invoicing data, giving leadership a single, trustworthy source for forecasted vs. realized revenue.
-- ** Hundred of dollars in annual savings** from retiring CRM licensing, since sales reporting and pipeline tracking were fully replicated (and improved) within the ERP and Power BI at no additional licensing cost.
+- ** Hundred of dollars in annual savings** - from retiring CRM licensing, since sales reporting and pipeline tracking were fully replicated (and improved) within the ERP and Power BI at no additional licensing cost.
 
 ## Tools & Technologies
 
