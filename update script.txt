@@ -1,0 +1,119 @@
+"""
+02_generate_update_sql.py
+
+Step 2 of the Salesforce -> AeroCore ERP migration.
+
+Takes the cleaned CSVs produced by 01_extract_and_clean.py and generates a
+single SQL script of UPDATE statements to load into AeroCore ERP, for the
+records/fields the ERP's internal import tool could not map automatically.
+
+Statements are written out in strict dependency order so foreign keys
+resolve correctly:
+    1. Companies      (ORG_MASTER)
+    2. Contacts       (CONTACT_LEDGER)
+    3. Opportunities  (OPP_HEADER)
+
+Fictional dataset only - table/column names correspond to the fictional
+AeroCore field mapping included in this repo, not any real company's system.
+
+Input : data/cleaned/companies_clean.csv
+        data/cleaned/contacts_clean.csv
+        data/cleaned/opportunities_clean.csv
+Output: sql/migration_update_bundle.sql
+"""
+
+import os
+import pandas as pd
+
+INPUT_DIR = "data/cleaned"
+OUTPUT_DIR = "sql"
+OUTPUT_FILE = f"{OUTPUT_DIR}/migration_update_bundle.sql"
+
+
+def sql_escape(value):
+    """Escape single quotes for safe SQL string literals, or return NULL for missing values."""
+    if pd.isna(value) or value == "":
+        return "NULL"
+    text = str(value).replace("'", "''")
+    return f"'{text}'"
+
+
+def build_company_updates(df):
+    statements = [
+        "-- ============================================================",
+        "-- STEP 1: COMPANIES (ORG_MASTER)",
+        "-- ============================================================",
+    ]
+    for _, row in df.iterrows():
+        statements.append(
+            "UPDATE ORG_MASTER SET "
+            f"ORG_COMPANY_NAME = {sql_escape(row.get('Company_Name'))}, "
+            f"ORG_UDF_012 = {sql_escape(row.get('Account_Type'))}, "
+            f"ORG_UDF_007 = {sql_escape(row.get('World_Region'))} "
+            f"WHERE ORG_SOURCE_ID = {sql_escape(row.get('Account_ID'))};"
+        )
+    return statements
+
+
+def build_contact_updates(df):
+    statements = [
+        "",
+        "-- ============================================================",
+        "-- STEP 2: CONTACTS (CONTACT_LEDGER)",
+        "-- ============================================================",
+    ]
+    for _, row in df.iterrows():
+        statements.append(
+            "UPDATE CONTACT_LEDGER SET "
+            f"CL_CONTACT_NAME = {sql_escape(row.get('Contact_Name'))}, "
+            f"CL_TITLE = {sql_escape(row.get('Title'))}, "
+            f"CL_EMAIL_ADDRESS = {sql_escape(row.get('Email'))}, "
+            f"CL_PHONE_NUMBER = {sql_escape(row.get('Phone'))} "
+            f"WHERE CL_ORG_COMPANY_REF = {sql_escape(row.get('Account_ID'))};"
+        )
+    return statements
+
+
+def build_opportunity_updates(df):
+    statements = [
+        "",
+        "-- ============================================================",
+        "-- STEP 3: OPPORTUNITIES (OPP_HEADER)",
+        "-- ============================================================",
+    ]
+    for _, row in df.iterrows():
+        statements.append(
+            "UPDATE OPP_HEADER SET "
+            f"H_COMPANY_REF_NUM = {sql_escape(row.get('Opportunity_Name'))}, "
+            f"H_UDF_H_006 = {sql_escape(row.get('Type_of_Opportunity'))}, "
+            f"H_STATUS_KEY = {sql_escape(row.get('Stage'))}, "
+            f"H_QUOTED_AMOUNT = {sql_escape(row.get('Final_Quote'))} "
+            f"WHERE H_SOURCE_OPP_ID = {sql_escape(row.get('Opportunity_ID'))};"
+        )
+    return statements
+
+
+def main():
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+    companies = pd.read_csv(f"{INPUT_DIR}/companies_clean.csv")
+    contacts = pd.read_csv(f"{INPUT_DIR}/contacts_clean.csv")
+    opportunities = pd.read_csv(f"{INPUT_DIR}/opportunities_clean.csv")
+
+    all_statements = []
+    all_statements += build_company_updates(companies)
+    all_statements += build_contact_updates(contacts)
+    all_statements += build_opportunity_updates(opportunities)
+
+    with open(OUTPUT_FILE, "w") as f:
+        f.write("\n".join(all_statements) + "\n")
+
+    total = len(companies) + len(contacts) + len(opportunities)
+    print(f"Generated {total} UPDATE statements -> {OUTPUT_FILE}")
+    print(f"  Companies:     {len(companies)}")
+    print(f"  Contacts:      {len(contacts)}")
+    print(f"  Opportunities: {len(opportunities)}")
+
+
+if __name__ == "__main__":
+    main()
