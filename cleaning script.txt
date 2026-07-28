@@ -1,0 +1,121 @@
+"""
+01_extract_and_clean.py
+
+Step 1 of the CRM -> AeroCore ERP migration.
+
+Reads the raw CRM export (Accounts, Contacts, Opportunities, Addresses)
+and cleans/reshapes every field so it fits AeroCore ERP's column constraints
+(mainly max text length, since the ERP's import tool silently truncates or
+rejects rows that exceed a field's defined width).
+
+This mirrors the real migration step where hundreds of CRM records had to be
+reduced/standardized before they could be loaded into the ERP.
+
+Fictional dataset only - table/column names correspond to the fictional
+AeroCore field mapping included in this repo, not any real company's system.
+
+Input : data/crm_export.xlsx   (sheets: Account, Contact, Opportunity, Address)
+Output: data/cleaned/companies_clean.csv
+        data/cleaned/contacts_clean.csv
+        data/cleaned/opportunities_clean.csv
+"""
+
+import os
+import re
+import pandas as pd
+
+INPUT_FILE = "data/crm_export.xlsx"
+OUTPUT_DIR = "data/cleaned"
+
+# --- AeroCore ERP field-length constraints -------------------------------
+# Pulled directly from the field mapping doc (Companies / Opportunities / Rolodex sheets).
+# Any CRM field longer than this must be truncated before import, or the
+# ERP's internal migration tool silently cuts it off mid-word.
+FIELD_LIMITS = {
+    "companies": {
+        "Company_Name": 80,
+        "Account_Type": 20,
+        "Industry": 20,
+        "Account_Owner": 60,
+        "World_Region": 20,
+    },
+    "contacts": {
+        "Contact_Name": 60,
+        "Title": 40,
+        "Email": 80,
+        "Phone": 20,
+    },
+    "opportunities": {
+        "Opportunity_Name": 30,   # H.COMPANY_REF_NUM
+        "Opportunity_Scope": 255,
+        "Stage": 20,
+        "Type_of_Opportunity": 20,
+        "Engine_Type": 15,
+    },
+}
+
+
+def truncate_field(value, max_len):
+    """Truncate text to max_len, trimming whitespace and collapsing double spaces."""
+    if pd.isna(value):
+        return value
+    text = str(value).strip()
+    text = re.sub(r"\s+", " ", text)
+    if len(text) > max_len:
+        text = text[:max_len].rstrip()
+    return text
+
+
+def clean_dataframe(df, limits):
+    """Apply truncate_field to every column that has a defined length limit."""
+    df = df.copy()
+    for col, max_len in limits.items():
+        if col in df.columns:
+            df[col] = df[col].apply(lambda v: truncate_field(v, max_len))
+    return df
+
+
+def load_crm_export(path):
+    sheets = pd.read_excel(path, sheet_name=None)
+    return sheets
+
+
+def main():
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+    sheets = load_crm_export(INPUT_FILE)
+    accounts = sheets["Account"]
+    contacts = sheets["Contact"]
+    opportunities = sheets["Opportunity"]
+
+    # --- Companies ---------------------------------------------------
+    companies_clean = clean_dataframe(accounts, FIELD_LIMITS["companies"])
+    companies_clean.to_csv(f"{OUTPUT_DIR}/companies_clean.csv", index=False)
+    print(f"Companies cleaned: {len(companies_clean)} rows -> companies_clean.csv")
+
+    # --- Contacts ------------------------------------------------------
+    contacts_clean = clean_dataframe(contacts, FIELD_LIMITS["contacts"])
+    contacts_clean.to_csv(f"{OUTPUT_DIR}/contacts_clean.csv", index=False)
+    print(f"Contacts cleaned: {len(contacts_clean)} rows -> contacts_clean.csv")
+
+    # --- Opportunities ---------------------------------------------------
+    opportunities_clean = clean_dataframe(opportunities, FIELD_LIMITS["opportunities"])
+    opportunities_clean.to_csv(f"{OUTPUT_DIR}/opportunities_clean.csv", index=False)
+    print(f"Opportunities cleaned: {len(opportunities_clean)} rows -> opportunities_clean.csv")
+
+    # --- Quick data-quality report ---------------------------------------
+    print("\n--- Data Quality Report ---")
+    for name, df, limits in [
+        ("Companies", accounts, FIELD_LIMITS["companies"]),
+        ("Contacts", contacts, FIELD_LIMITS["contacts"]),
+        ("Opportunities", opportunities, FIELD_LIMITS["opportunities"]),
+    ]:
+        for col, max_len in limits.items():
+            if col in df.columns:
+                over_limit = df[col].dropna().astype(str).apply(len).gt(max_len).sum()
+                if over_limit:
+                    print(f"  {name}.{col}: {over_limit} value(s) exceeded {max_len} chars and were truncated")
+
+
+if __name__ == "__main__":
+    main()
