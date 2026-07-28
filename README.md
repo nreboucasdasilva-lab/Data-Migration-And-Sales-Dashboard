@@ -54,20 +54,40 @@ CRM · ERP (data migration & SQL views) · Python (data cleaning, SQL bundle gen
 
 ## Screenshots
 
-**Main Page**
+### Main Page
 ![Main Page](Main%20Page.jpg)
 
-**Engine Sales Page**
-![Engine Sales](Engine%20Sales.jpg)
+The landing page provides an overview of the CRM data migrated into the ERP and serves as the navigation hub for the operational dashboards.
 
-**Engine Purchase Page**
-![Engine Purchase](Engine%20Purchase.jpg)
-
-**Engine Repair Page**
-![Engine Repair](Engine%20Repair.jpg)
-
-**Executive Dashboard**
-![Dashboard](Dashboard.jpg)
 ---
 
+### Service Opportunities
+![Service Opportunities](Service%20Opportunities.jpg)
+
+Tracks repair/service opportunities through each stage of the pipeline, including milestones, assigned sales representatives, expected revenue, and current status.
+
+---
+
+### Procurement Opportunities
+![Procurement Opportunities](Procurement%20Opportunities.jpg)
+
+Monitors engine purchasing opportunities, allowing buyers and sales teams to manage sourcing activities, pipeline progress, and projected revenue.
+
+---
+
+### New Business Opportunities
+![New Business Opportunities](New%20Business%20Opportunities.jpg)
+
+Displays new sales opportunities from initial lead through negotiation and closing, providing visibility into the sales pipeline and forecasted revenue.
+
+---
+
+### Executive Dashboard
+![Dashboard](Dashboard.jpg)
+
+Executive summary page featuring KPIs such as Total Revenue, Win Rate, Open Pipeline, and dynamic Won / Forecast / Total analysis with interactive filtering by region, opportunity type, engine type, and revenue trends.
+
+---
+
+*This repository contains a data migration project built with mock data based on a real-world implementation. Company names, records, and financial figures have been anonymized or replaced with fictional data for demonstration purposes.*
 *This repo contains a data migration project built with mock data, based on a real project where I migrated sales data from CRM to an ERP system. Company names, figures, and records shown here are fictional and do not represent any real company's data.*
