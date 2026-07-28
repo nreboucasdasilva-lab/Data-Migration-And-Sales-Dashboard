@@ -29,7 +29,7 @@ Once data landed in the ERP, built SQL **views** on top of the raw tables so eac
 
 **5. Power BI Dashboard**
 Built a multi-page Power BI dashboard on top of those views:
-- Three operational pages (**Engine Repair**, **Engine Purchase**, **Engine Sales**) mirroring what reps used to see in CRM — opportunity tables, milestone/status trackers, and pipeline stage tracking
+- Three operational pages (**Service Opportunities**, **Procurement Opportunities**, **New Business Opportunities**) mirroring what reps used to see in CRM — opportunity tables, milestone/status trackers, and pipeline stage tracking
 - One executive **Dashboard** page for sales leadership: Total Revenue, Win Rate, Total Open Pipeline, and an interactive **Won / Forecast / Total** toggle that dynamically re-shapes every chart (region, engine type, opportunity type, and revenue trend) between actuals and forecasted pipeline
 
 **6. Crystal Reports**
